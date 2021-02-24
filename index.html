@@ -6,6 +6,7 @@
 <script type="text/javascript" src="model.js"></script>
 <script type="text/javascript" src="view.js"></script>
 <script type="text/javascript" src="controller.js"></script>
+<script type="text/javascript" src="localStorage.js"></script>
 <style type="text/css">
 #textBox {
   width: 700px;
@@ -21,11 +22,23 @@
 <br>
 <div id="toolBar2"></div>
 <br>
-<div id="textBox" contenteditable="true"></div>
+<div>
+  <button id='Open' onclick="NewFile();">Open New File</button>
+  <button id ='Save' onclick="saveFile();">Save File</button>
+  <button id="Load" onclick="loadAFile();">Load</button>
+  <button id="Delete" onclick=" DeleteFile();">Delete</button>
+</div>
+<button onclick="showCollection();">Show collection in the console</button>
+<div id="textBox" contenteditable="true">
+  You don't have any files open.
+  Load a previous file or Open a new File...
+</div>
 <button id = "save">Save Content</button>
 </body>
+
 <script>
 window.addEventListener('load',()=>{
+  restore();
   const model = new Model();
   view = new View(model,{
     'text':document.getElementById("textBox"),
@@ -34,6 +47,7 @@ window.addEventListener('load',()=>{
     'button':document.getElementById('save')
   }),
   controller = new Controller(model,view);
+
 })
 </script>
 </html>
