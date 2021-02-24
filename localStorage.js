@@ -30,6 +30,7 @@ function loadAFile(){
     var collection = localStorage.getItem("collection");
     if(collection === null){
         entityCollection = [];
+        alert("You don't have Action Stories till now. Start by Opening a new file");
        }else{
         entityCollection = JSON.parse(collection);
         index = window.prompt("You have " + entityCollection.length + " Action Stories... Which Action Story you want to Load" , '');
