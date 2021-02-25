@@ -8,27 +8,49 @@
 <script type="text/javascript" src="controller.js"></script>
 <style type="text/css">
 #textBox {
-  width: 700px;
-  height: 500px;
+  width: 800px;
+  height: 550px;
   border: 1px #000000 solid;
   padding: 6px;
   overflow: scroll;
 }
+.header{grid-area:head;}
+.menu{grid-area: menu;}
+.editor{grid-area: editor;}
+.grid-container{
+display: grid;
+grid-template-areas:
+	'head head head head'
+  'menu editor editor editor'
+  'menu editor editor editor'
+  'menu editor editor editor';
+grid-gap:5px;
+}
 </style>
 </head>
 <body>
-<div id="toolBar1"></div>
-<br>
-<div id="toolBar2"></div>
-<br>
-<div>
-<button id='newFile'>Open New File</button>
-<button id ='Save'>Save File</button>
-<button id="Load">Load</button>
-<button id="Delete">Delete</button>
+<div class="grid-container">
+<div class="header">
+  <div id="toolBar1"></div>
+  <br>
+  <div id="toolBar2"></div>
+  <br>
+  <div>
+  <button id='newFile'>Open New File</button>
+  <button id ='Save'>Save File</button>
+  <button id="Load">Load</button>
+  <button id="Delete">Delete</button>
+  </div>
+  <button id="collection">Show collection in the console</button>
+  <br>
 </div>
-<button id="collection">Show collection in the console</button>
-<div id="textBox" contenteditable="true">
+<div class="menu">
+<ul id="list"></ul>
+</div>
+<div class="editor"><div id="textBox" contenteditable="true"></div>
+</div>
+
+
 </div>
 </body>
 
@@ -39,6 +61,7 @@ window.addEventListener('load',()=>{
     'text':document.getElementById("textBox"),
     'toolbar1':document.getElementById('toolBar1'),
     'toolbar2':document.getElementById('toolBar2'),
+     'list':document.getElementById('list'),
     'newFile':document.getElementById('newFile'),
     'saveData':document.getElementById('Save'),
     'load':document.getElementById('Load'),
