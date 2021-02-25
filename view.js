@@ -3,12 +3,15 @@ class View extends EventEmitter{
         super();
         this._model = model;
         this._elements = elements;
-        //model listeners
-        model.on('SaveData',()=>this.show());
+
         //setting view of toolbars
         elements.toolbar2.appendChild(this.setToolbar2());
         elements.toolbar1.appendChild(this.setToolbar1());
-        elements.button.addEventListener('click',()=>this.emit('saveButtonClicked'));
+        //adding event listener
+        elements.newFile.addEventListener('click',()=>this.emit('Open New File'));
+        elements.saveData.addEventListener('click',()=>this.emit('Save File'));
+        elements.load.addEventListener('click',()=>this.emit('Load File'));
+        elements.delete.addEventListener('click',()=>this.emit('Delete File'));
     }
     setToolbar2(){
         var output = document.createElement("div");
@@ -42,9 +45,11 @@ class View extends EventEmitter{
         console.log(output);
         return output;
     }
-    show(){
-        console.log("The data :-");
-        console.log(this._model._Data);
+    setText(data){
+        this._elements.text.innerHTML = data;
+    }
+    getText(){
+        return this._elements.text.innerHTML;
     }
    
 }

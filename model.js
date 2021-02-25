@@ -61,9 +61,5 @@ class Model extends EventEmitter{
   static formatDoc(command, value) {
     document.execCommand(command, false, value); 
   }
-  setData(data){
-    this._Data = data;
-    this.emit('SaveData',data);
-  }
 
 }
