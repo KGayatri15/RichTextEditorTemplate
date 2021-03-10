@@ -44,19 +44,22 @@ class processFS{
     }
     static async saveFile(event){
         event.preventDefault();
-        if(!fileHandle){
+        console.log('File Handle ' + fileHandle);
+        if(fileHandle === undefined){
             await processFS.saveAsFile(event);
+        }else{
+            const writable = await fileHandle.createWritable();
+            await writable.write(document.getElementById('textBox').innerText);
+            await writable.close();
         }
-        const writable = await fileHandle.createWritable();
-        await writable.write(document.getElementById('textBox').innerText);
-        await writable.close();
     }
     static async saveAsFile(event){
         event.preventDefault();
         const newHandle = await window.showSaveFilePicker(pickerOpts);
         const writableStream = await newHandle.createWritable();
         await writableStream.write(document.getElementById('textBox').innerText);
-        await writableStream.close()
+        await writableStream.close();
+        fileHandle = newHandle;
     }
     static async readFile(event){
         event.preventDefault();
