@@ -22,25 +22,13 @@ shortcut.add('Ctrl+O',processFS.Open);
 class processFS{
     static async NewFile(event){
         event.preventDefault();
-        if(!fileHandle){
+        if(!fileHandle || document.getElementById('textBox').innerText.length < 1){
             document.getElementById('textBox').innerText = '';     
         }else{
-        
+            if(confirm('You want to erase the content ?')){
+                document.getElementById('textBox').innerText = '';     
+            }
         }
-        // const options = {
-        //     types: [
-        //       {
-        //         description: 'Action Space Editor files',
-        //         accept: {
-        //           'text/plain': ['.txt'],
-        //           'text/html':['.html'],
-        //           'text/json':['.json']
-        //         },
-        //       },
-        //     ],
-        //   };
-        //   const handle = await window.showSaveFilePicker(options);
-        //   return handle;
     }
     static async saveFile(event){
         event.preventDefault();
