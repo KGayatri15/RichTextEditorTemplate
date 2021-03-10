@@ -6,6 +6,9 @@
 <script type="text/javascript" src="model.js"></script>
 <script type="text/javascript" src="view.js"></script>
 <script type="text/javascript" src="controller.js"></script>
+<script type="text/javascript" src="processFS.js"></script>
+<script type="text/javascript" src="shortcut.js"></script>
+<script type="text/javascript" src="processFS.js"></script>
 <style type="text/css">
 #textBox {
   width: 800px;
@@ -14,7 +17,7 @@
   padding: 6px;
   overflow: scroll;
 }
-.header{grid-area:head;}
+/* .header{grid-area:head;}
 .menu{grid-area: menu;}
 .editor{grid-area: editor;}
 .grid-container{
@@ -25,10 +28,10 @@ grid-template-areas:
   'menu editor editor editor'
   'menu editor editor editor';
 grid-gap:5px;
-}
+} */
 </style>
 </head>
-<body>
+<body onload="include(event);">
 <div class="grid-container">
 <div class="header">
   <div id="toolBar1"></div>
@@ -36,6 +39,7 @@ grid-gap:5px;
   <div id="toolBar2"></div>
   <br>
   <div>
+  <h1>Local Storage</h1>
   <button id='newFile'>Open New File</button>
   <button id ='Save'>Save File</button>
   <button id="Load">Load</button>
@@ -43,10 +47,17 @@ grid-gap:5px;
   </div>
   <button id="collection">Show collection in the console</button>
   <br>
+  <br>
+  <h1>File System Access (File Handle)</h1>
+  <button onclick="processFS.NewFile(event);">New</button>
+  <button onclick="processFS.saveFile(event);">Save (Ctrl + S)</button>
+  <button onclick="processFS.saveAsFile(event);">Save as (F12)</button>
+  <button onclick="processFS.readFile(event);">Open (Ctrl + O)</button>
+  <br>
 </div>
-<div class="menu">
+<!-- <div class="menu">
 <ul id="list"></ul>
-</div>
+</div> -->
 <div class="editor"><div id="textBox" contenteditable="true"></div>
 </div>
 
@@ -69,7 +80,7 @@ window.addEventListener('load',()=>{
     'collection':document.getElementById('collection')
   }),
   controller = new Controller(model,view);
-  controller.restore();
+ // controller.restore();
 })
 </script>
 </html>

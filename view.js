@@ -9,7 +9,7 @@ class View extends EventEmitter{
         elements.toolbar1.appendChild(this.setToolbar1());
         //list of files
         console.log("n the view");
-        elements.list.innerHTML = this.setList();
+//        elements.list.innerHTML = this.setList();
         //adding event listener
         elements.newFile.addEventListener('click',()=>this.emit('Open New File'));
         elements.saveData.addEventListener('click',()=>this.emit('Save File'));
@@ -49,14 +49,14 @@ class View extends EventEmitter{
         return output;
     }
     setList(){
-        var collection = JSON.parse(localStorage.getItem('collection'));
-        var data = '<h3>Files</h3>';
-        for(var file of collection){
-            data  +=   '<li><b>' + file['name'] + '</b></li><br>';
-        }
-        data = data.replace('undefined','');
-        console.log(data);
-        return data;
+        // var collection = JSON.parse(localStorage.getItem('collection'));
+        // var data = '<h3>Files</h3>';
+        // for(var file of collection){
+        //     data  +=   '<li><b>' + file['name'] + '</b></li><br>';
+        // }
+        // data = data.replace('undefined','');
+        // console.log(data);
+        // return data;
     }
     setText(data){
         this._elements.text.innerHTML = data;
