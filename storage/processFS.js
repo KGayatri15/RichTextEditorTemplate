@@ -1,11 +1,11 @@
+
 let fileHandle;
 const pickerOpts = {
     types: [
       {
-        description: '.txt,.json,.html,.png,.gif,.jpg,.jpeg',
+        description: '.txt,.html,.js,.json,.csv,.xml',
         accept: {
-          'image/*': ['.png', '.gif', '.jpeg', '.jpg'],
-          'text/*':['.txt','.html','.json']
+          'text/*':['.txt','.html','.json','.js']
         }
       },
     ],
@@ -66,11 +66,47 @@ class processFS{
             return;
         console.log(fileHandle);
         const file = await fileHandle.getFile();
-        if(file['name'].includes('.json') || file['name'].includes('.txt')|| file['name'].includes('.html')){
+        if(file['name'].includes('.json') || file['name'].includes('.txt')|| file['name'].includes('.html')|| file['name'].includes('.js')){
             const contents = await file.text();
             document.getElementById('textBox').innerText = contents;
         }else if(file['type'].includes('image')){
             console.log("Image he jugaad karo");
         }
     }
+    static async OpenDirectory(event){
+        event.preventDefault();
+        const dirHandle = await window.showDirectoryPicker();
+        var get = document.getElementById('frontEnd');
+        var li = document.createElement('li');
+        var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = dirHandle.name;li.append(span);
+        var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);
+        get.append(li);
+        console.log("Directory Name :- " + dirHandle.name);
+        await processFS.getContent(dirHandle ,ul);
+        console.log(get);
+        var carets = document.getElementsByClassName('caret');
+        for (var i = 0; i < carets.length; i++) {
+            carets[i].addEventListener('click', function() {
+                console.log("Clicked on caret");
+                this.classList.toggle('caret-down')
+                parent = this.parentElement;
+                parent.querySelector('.nested').classList.toggle('active')
+            })
+        }
+    }
+    static async getContent(handle,parent){
+        for await (const entry of handle.values()){
+            if(entry.kind == 'directory'){
+                console.log("Name of Directory :- " + entry.name);
+                var li = document.createElement('li');parent.append(li);
+                var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = entry.name;li.append(span);
+                var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);
+                await processFS.getContent(entry ,ul);
+            }else if(entry.kind == 'file' && entry.name.includes('.')){
+                var liFile = document.createElement('li');liFile.innerText = entry.name;
+                parent.append(liFile);
+            }
+        }
+    }
+    
 }

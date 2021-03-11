@@ -3,33 +3,12 @@
 <head>
 <title>Rich Text Editor</title>
 <script src="https://kit.fontawesome.com/d8ebd8f143.js" crossorigin="anonymous"></script>
-<script type="text/javascript" src="model.js"></script>
-<script type="text/javascript" src="view.js"></script>
-<script type="text/javascript" src="controller.js"></script>
-<script type="text/javascript" src="processFS.js"></script>
-<script type="text/javascript" src="shortcut.js"></script>
-<script type="text/javascript" src="processFS.js"></script>
-<style type="text/css">
-#textBox {
-  width: 800px;
-  height: 550px;
-  border: 1px #000000 solid;
-  padding: 6px;
-  overflow: scroll;
-}
-/* .header{grid-area:head;}
-.menu{grid-area: menu;}
-.editor{grid-area: editor;}
-.grid-container{
-display: grid;
-grid-template-areas:
-	'head head head head'
-  'menu editor editor editor'
-  'menu editor editor editor'
-  'menu editor editor editor';
-grid-gap:5px;
-} */
-</style>
+<link rel="stylesheet" href="beauty/style.css"/>
+<script type="text/javascript" src="js/model.js"></script>
+<script type="text/javascript" src="js/view.js"></script>
+<script type="text/javascript" src="js/controller.js"></script>
+<script type="text/javascript" src="storage/processFS.js"></script>
+<script type="text/javascript" src="storage/shortcut.js"></script>
 </head>
 <body onload="include(event);">
 <div class="grid-container">
@@ -54,10 +33,15 @@ grid-gap:5px;
   <button onclick="processFS.saveAsFile(event);">Save as (F12)</button>
   <button onclick="processFS.readFile(event);">Open (Ctrl + O)</button>
   <br>
+  <h1>Directory</h1>
+  <button onclick="processFS.OpenDirectory(event);">Open a Directory</button>
 </div>
-<!-- <div class="menu">
-<ul id="list"></ul>
-</div> -->
+<div class="row">
+<div class="menu col-md-4">
+  <ul id ="frontEnd">
+  </ul>
+</div>
+</div>
 <div class="editor"><div id="textBox" contenteditable="true"></div>
 </div>
 

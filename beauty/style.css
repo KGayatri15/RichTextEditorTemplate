@@ -1,0 +1,112 @@
+#textBox {
+    width: 800px;
+    height: 550px;
+    border: 1px #000000 solid;
+    padding: 6px;
+    overflow: scroll;
+}
+.header{grid-area:head;}
+.menu{grid-area: menu;}
+.editor{grid-area: editor;}
+.grid-container{
+  display: grid;
+  grid-template-areas:
+      'head head head head'
+    'menu editor editor editor'
+    'menu editor editor editor'
+    'menu editor editor editor';
+  grid-gap:5px;
+}
+#frontEnd .caret {
+    position: relative;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+#frontEnd .caret-down {
+    position: relative;
+}
+
+#frontEnd .caret:before {
+    content: '\25B8';
+    display: inline-block;
+    font-size: 17px;
+}
+
+#frontEnd .caret-down:before {
+    content: '\25B8';
+    display: inline-block;
+    font-size: 17px;
+    transform: rotate(90deg)
+}
+
+#frontEnd ul {
+    list-style: none;
+    border-left: 1px solid black;
+    padding: 0;
+    margin: 0;
+    padding-left: 35px;
+}
+
+#frontEnd ul li {
+    position: relative;
+    text-transform: capitalize;
+}
+
+#frontEnd ul li:before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: -35px;
+    background: black;
+    height: 1px;
+    width: 32px;
+}
+
+.nested {
+    display: none;
+}
+
+.active {
+    display: block;
+}
+
+.closeIT {
+    background-color: red;
+    color: white;
+    padding: 0.1rem 0.5rem;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+input {
+    overflow: visible;
+    border: none;
+}
+
+.fa {
+    pointer-events: none;
+}
+
+#backend ul {
+    list-style: none;
+    border-left: 1px solid black;
+    padding: 0;
+    margin: 0;
+    padding-left: 35px;
+}
+
+#backend ul li {
+    position: relative;
+    text-transform: capitalize;
+}
+
+#backend ul li:before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: -35px;
+    background: black;
+    height: 1px;
+    width: 32px;
+}
