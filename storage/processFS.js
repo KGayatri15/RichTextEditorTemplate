@@ -79,7 +79,7 @@ class processFS{
         var get = document.getElementById('frontEnd');
         var li = document.createElement('li');
         var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = dirHandle.name;li.append(span);
-        var ul = document.createElement('ul');ul.setAttribute('class','nested');ul.setAttribute('id',JSON.stringify(dirHandle));li.append(ul);
+        var ul = document.createElement('ul');ul.setAttribute('class','nested');ul.setAttribute('id',dirHandle);li.append(ul);
         get.append(li);
         console.log("Directory Name :- " + dirHandle.name);
        await processFS.getContent(dirHandle ,ul);
@@ -105,7 +105,7 @@ class processFS{
                 var ul = document.createElement('ul');ul.setAttribute('class','nested');ui.setAttribute('id',getDirHandle);li.append(ul);
                 await processFS.getContent(entry ,ul);
             }else if(entry.kind == 'file' && entry.name.includes('.')){
-                var parentHandle = JSON.parse(parent.getAttribute('id'));
+                var parentHandle = parent.getAttribute('id');
                 var fileHandle = await parentHandle.getFileHandle(entry.name);
                 var liFile = document.createElement('li');liFile.setAttribute('id',fileHandle);liFile.innerText = entry.name;
                 parent.append(liFile);
