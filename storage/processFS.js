@@ -1,4 +1,3 @@
-
 let fileHandle;
 const pickerOpts = {
     types: [
@@ -12,13 +11,6 @@ const pickerOpts = {
     excludeAcceptAllOption: true,
     multiple: false
 };
-function include(event){
-event.preventDefault();
-console.log('Included');
-shortcut.add('Ctrl+S',processFS.saveFile);
-shortcut.add('F12',processFS.saveAsFile);
-shortcut.add('Ctrl+O',processFS.Open);
-}
 class processFS{
     static async NewFile(event){
         event.preventDefault();
@@ -71,15 +63,18 @@ class processFS{
             document.getElementById('textBox').innerText = contents;
         }else if(file['type'].includes('image')){
             console.log("Image he jugaad karo");
+        }else{
+            console.log("Not supported");
         }
     }
     static async OpenDirectory(event){
         event.preventDefault();
         const dirHandle = await window.showDirectoryPicker();
+        await set("directory", dirHandle);
         var get = document.getElementById('frontEnd');
         var li = document.createElement('li');
         var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = dirHandle.name;li.append(span);
-        var ul = document.createElement('ul');ul.setAttribute('class','nested');ul.setAttribute('id',dirHandle);li.append(ul);
+        var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);//ul.setAttribute('id',dirHandle)
         get.append(li);
         console.log("Directory Name :- " + dirHandle.name);
        await processFS.getContent(dirHandle ,ul);
@@ -87,27 +82,37 @@ class processFS{
         var carets = document.getElementsByClassName('caret');
         for (var i = 0; i < carets.length; i++) {
             carets[i].addEventListener('click', function() {
-                console.log("Clicked on caret");
                 this.classList.toggle('caret-down')
                 parent = this.parentElement;
                 parent.querySelector('.nested').classList.toggle('active')
             })
         }
+        var files = document.getElementsByClassName('file');
+        for(var i = 0 ; i < files.length; i++){
+            files[i].addEventListener('click',async()=>{
+                const handle = await get(this.getAttribute('id'));
+                const getFile = await handle.getFile();
+                const contents = await getFile.text();
+                document.getElementById('textBox').innerText = contents;
+            });
+        }
+
     }
     static async getContent(handle,parent){
         for await (const entry of handle.values()){
             if(entry.kind == 'directory'){
                 console.log("Name of Directory :- " + entry.name);
                 var li = document.createElement('li');parent.append(li);
-                var parentHandle = parent.getAttribute('id');console.log(parentHandle);
-                var getDirHandle = await parentHandle.getDirectoryHandle(entry.name);
+                var parentHandle = await get("directory");
+                var getDirHandle = await parentHandle.getDirectoryHandle(entry.name);await set("directory",getDirHandle);
                 var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = entry.name;li.append(span);
-                var ul = document.createElement('ul');ul.setAttribute('class','nested');ui.setAttribute('id',getDirHandle);li.append(ul);
+                var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);//ul.setAttribute('id',getDirHandle)
                 await processFS.getContent(entry ,ul);
             }else if(entry.kind == 'file' && entry.name.includes('.')){
-                var parentHandle = parent.getAttribute('id');
+                var parentHandle = await get("directory");
                 var fileHandle = await parentHandle.getFileHandle(entry.name);
-                var liFile = document.createElement('li');liFile.setAttribute('id',fileHandle);liFile.innerText = entry.name;
+                var liFile = document.createElement('li');liFile.setAttribute('id',entry.name);liFile.setAttribute('class','file');liFile.innerText = entry.name;
+                await set(entry.name , fileHandle);
                 parent.append(liFile);
             }
         }

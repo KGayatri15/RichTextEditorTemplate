@@ -9,8 +9,9 @@
 <script type="text/javascript" src="js/controller.js"></script>
 <script type="text/javascript" src="storage/processFS.js"></script>
 <script type="text/javascript" src="storage/shortcut.js"></script>
+<script type="text/javascript" src="storage/indexDB.js"></script>
 </head>
-<body onload="include(event);">
+<body>
 <div class="grid-container">
 <div class="header">
   <div id="toolBar1"></div>
@@ -50,7 +51,11 @@
 </body>
 
 <script>
-window.addEventListener('load',()=>{
+window.addEventListener('load',(event)=>{
+event.preventDefault();
+shortcut.add('Ctrl+S',processFS.saveFile);
+shortcut.add('F12',processFS.saveAsFile);
+shortcut.add('Ctrl+O',processFS.Open);
   const model = new Model();
   view = new View(model,{
     'text':document.getElementById("textBox"),
