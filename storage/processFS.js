@@ -2,7 +2,7 @@ let fileHandle;
 const pickerOpts = {
     types: [
       {
-        description: '.txt,.html,.js,.json,.csv,.xml',
+        description: '.txt,.html,.js,.json,.csv,.xml,.xlsx,.pdf',
         accept: {
           'text/*':['.txt','.html','.json','.js']
         }
@@ -51,18 +51,24 @@ class processFS{
             await this.Open(event);
         }
     }
-    static async Open(event){
+    static async Open(event,handle){
         event.preventDefault();
+        if(!handle){
         [fileHandle] = await window.showOpenFilePicker(pickerOpts);
         if(!fileHandle)
             return;
+        }else{
+            fileHandle = handle;
+        }
         console.log(fileHandle);
         const file = await fileHandle.getFile();
-        if(file['name'].includes('.json') || file['name'].includes('.txt')|| file['name'].includes('.html')|| file['name'].includes('.js')){
+        if(file['name'].includes('.json') || file['name'].includes('.txt')|| file['name'].includes('.html')|| file['name'].includes('.js')||file['name'].includes('.pdf')){
             const contents = await file.text();
             document.getElementById('textBox').innerText = contents;
+        }else if(file['name'].includes('.xml') || file['name'].includes('.xlsx')|| file['name'].includes('.csv')){
+            console.log("Work In Progress")
         }else if(file['type'].includes('image')){
-            console.log("Image he jugaad karo");
+            console.log("Image :- Work In Progress");
         }else{
             console.log("Not supported");
         }
@@ -70,18 +76,20 @@ class processFS{
     static async OpenDirectory(event){
         event.preventDefault();
         const dirHandle = await window.showDirectoryPicker();
-        await set("directory", dirHandle);
-        var get = document.getElementById('frontEnd');
+        var dirID = processFS.uid();
+        await set(dirID, dirHandle);
+        //set innerHTML
+        var workspace = document.getElementById('workspace');
         var li = document.createElement('li');
         var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = dirHandle.name;li.append(span);
-        var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);//ul.setAttribute('id',dirHandle)
-        get.append(li);
-        console.log("Directory Name :- " + dirHandle.name);
-       await processFS.getContent(dirHandle ,ul);
-        console.log(get);
-        var carets = document.getElementsByClassName('caret');
+        var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);ul.setAttribute('id',dirID);
+        workspace.append(li);
+        await processFS.getContent(dirHandle ,ul);
+        console.log(workspace);
+        var carets = document.getElementsByClassName('caret');console.log("Kitne carets he " + carets.length);
         for (var i = 0; i < carets.length; i++) {
             carets[i].addEventListener('click', function() {
+                console.log("Clicked");
                 this.classList.toggle('caret-down')
                 parent = this.parentElement;
                 parent.querySelector('.nested').classList.toggle('active')
@@ -89,33 +97,39 @@ class processFS{
         }
         var files = document.getElementsByClassName('file');
         for(var i = 0 ; i < files.length; i++){
-            files[i].addEventListener('click',async()=>{
-                const handle = await get(this.getAttribute('id'));
-                const getFile = await handle.getFile();
-                const contents = await getFile.text();
-                document.getElementById('textBox').innerText = contents;
+            files[i].addEventListener('click',async function(event){
+                console.log(event.target.getAttribute("id"));
+                var handleDirFile = await get(event.target.getAttribute('id'));
+                processFS.Open(event,handleDirFile);
             });
-        }
-
+          }
     }
     static async getContent(handle,parent){
+        var parentHandle = await get(parent.getAttribute('id'));//get parent Handle from indexDB
         for await (const entry of handle.values()){
+            var ID = processFS.uid(); //new id for directory/file
             if(entry.kind == 'directory'){
                 console.log("Name of Directory :- " + entry.name);
                 var li = document.createElement('li');parent.append(li);
-                var parentHandle = await get("directory");
-                var getDirHandle = await parentHandle.getDirectoryHandle(entry.name);await set("directory",getDirHandle);
+                var getDirHandle = await parentHandle.getDirectoryHandle(entry.name);//get current directory handle
+                await set(ID,getDirHandle);//set Unique ID to this directory handle
                 var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = entry.name;li.append(span);
-                var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);//ul.setAttribute('id',getDirHandle)
+                var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);ul.setAttribute('id',ID);
                 await processFS.getContent(entry ,ul);
             }else if(entry.kind == 'file' && entry.name.includes('.')){
-                var parentHandle = await get("directory");
-                var fileHandle = await parentHandle.getFileHandle(entry.name);
-                var liFile = document.createElement('li');liFile.setAttribute('id',entry.name);liFile.setAttribute('class','file');liFile.innerText = entry.name;
-                await set(entry.name , fileHandle);
+                var getfileHandle = await parentHandle.getFileHandle(entry.name);//get current file handle
+                await set(ID,getfileHandle);//set Unique ID to this directory handle
+                var liFile = document.createElement('li');liFile.innerText = entry.name;liFile.setAttribute('id',ID);liFile.setAttribute('class','file');
                 parent.append(liFile);
             }
         }
     }
+    static uid() {
+        let timmy = Date.now().toString(36).toLocaleUpperCase();
+        let randy = parseInt(Math.random() * Number.MAX_SAFE_INTEGER);
+        randy = randy.toString(36).slice(0, 12).padStart(12, '0').toLocaleUpperCase();
+        return ''.concat(timmy, '-', randy);
+    }
+    
     
 }
