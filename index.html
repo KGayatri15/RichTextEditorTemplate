@@ -7,6 +7,8 @@
 <script type="text/javascript" src="js/model.js"></script>
 <script type="text/javascript" src="js/view.js"></script>
 <script type="text/javascript" src="js/controller.js"></script>
+<script type="text/javascript" src="js/actionHelpers.js"></script>
+<script type="text/javascript" src="json/sidebar.js"></script>
 <script type="text/javascript" src="storage/processFS.js"></script>
 <script type="text/javascript" src="storage/shortcut.js"></script>
 <script type="text/javascript" src="storage/indexDB.js"></script>
@@ -59,6 +61,15 @@
 <script> 
 window.addEventListener('load',(event)=>{
 event.preventDefault();
+setInterval(async(event)=>{
+  if(localStorage.getItem('ActiveFile') !== document.getElementById('textBox').innerHTML){
+    await localStorage.setItem('ActiveFile',document.getElementById('textBox').innerHTML);
+    console.log('Updated Active File');
+  }
+},9000);
+var data = localStorage.getItem('ActiveFile'); console.log("ActiveFile :- " + data);
+if(data)
+  document.getElementById('textBox').innerHTML = data;
 shortcut.add('Ctrl+S',processFS.saveFile);
 shortcut.add('F12',processFS.saveAsFile);
 shortcut.add('Ctrl+O',processFS.Open);

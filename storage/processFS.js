@@ -2,9 +2,10 @@ let fileHandle;
 const pickerOpts = {
     types: [
       {
-        description: '.txt,.html,.js,.json,.csv,.xml,.xlsx,.pdf',
+        description: '.txt,.html,.js,.json,.csv,.xml,.xlsx,.jpg,jpeg,.png',
         accept: {
-          'text/*':['.txt','.html','.json','.js']
+          'text/*':['.txt','.html','.json','.js'],
+          'iamge/*':['jpg','jpeg','png']
         }
       },
     ],
@@ -68,10 +69,14 @@ class processFS{
         }else if(file['name'].includes('.xml') || file['name'].includes('.xlsx')|| file['name'].includes('.csv')){
             console.log("Work In Progress");
         }else if(file['type'].includes('image') ||file['name'].includes('.JPG') ||file['name'].includes('.JPEG') ||file['name'].includes('.PNG')){
-           contents = await file.slice();console.log(contents);
-           var image = document.createElement('image');
-           image.setAttribute('src', URL.createObjectURL(contents));console.log(image);
-           document.getElementById('textBox').append(image);
+           var reader = new FileReader();
+           reader.addEventListener("load", function () {
+            var image = new Image();
+            image.title = file.name;
+            image.src = reader.result;
+            document.getElementById('textBox').append(image);
+          }, false);
+            reader.readAsDataURL(file);
         }else{
             console.log("Not supported");
         }
@@ -80,7 +85,7 @@ class processFS{
         event.preventDefault();
         const dirHandle = await window.showDirectoryPicker();
         var dirID = processFS.uid();
-        await set(dirID, dirHandle);
+        await indexDB.set(dirID, dirHandle);
         //set innerHTML
         var workspace = document.getElementById('workspace');
         var li = document.createElement('li');
@@ -102,28 +107,28 @@ class processFS{
         var files = document.querySelectorAll('.file');
         files.forEach(file =>{
             file.addEventListener('click',async function(event){
-                event.stopPropagation();
+                event.preventDefault();
                 console.log(event.target.getAttribute("id"));
-                var handleDirFile = await get(event.target.getAttribute('id'));
+                var handleDirFile = await indexDB.get(event.target.getAttribute('id'));
                 processFS.Open(event,handleDirFile);
             });
         })
     }
     static async getContent(handle,parent){
-        var parentHandle = await get(parent.getAttribute('id'));//get parent Handle from indexDB
+        var parentHandle = await indexDB.get(parent.getAttribute('id'));//get parent Handle from indexDB
         for await (const entry of handle.values()){
             var ID = processFS.uid(); //new id for directory/file
             if(entry.kind == 'directory'){
                 console.log("Name of Directory :- " + entry.name);
                 var li = document.createElement('li');parent.append(li);
                 var getDirHandle = await parentHandle.getDirectoryHandle(entry.name);//get current directory handle
-                await set(ID,getDirHandle);//set Unique ID to this directory handle
+                await indexDB.set(ID,getDirHandle);//set Unique ID to this directory handle
                 var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = entry.name;li.append(span);
                 var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);ul.setAttribute('id',ID);
                 await processFS.getContent(entry ,ul);
             }else if(entry.kind == 'file' && entry.name.includes('.')){
                 var getfileHandle = await parentHandle.getFileHandle(entry.name);//get current file handle
-                await set(ID,getfileHandle);//set Unique ID to this directory handle
+                await indexDB.set(ID,getfileHandle);//set Unique ID to this directory handle
                 var liFile = document.createElement('li');liFile.innerText = entry.name;liFile.setAttribute('id',ID);liFile.setAttribute('class','file');
                 parent.append(liFile);
             }
@@ -134,7 +139,5 @@ class processFS{
         let randy = parseInt(Math.random() * Number.MAX_SAFE_INTEGER);
         randy = randy.toString(36).slice(0, 12).padStart(12, '0').toLocaleUpperCase();
         return ''.concat(timmy, '-', randy);
-    }
-    
-    
+    }    
 }

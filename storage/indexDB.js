@@ -1,4 +1,6 @@
-function promisifyRequest(request) {
+let defaultGetStoreFunc;
+class indexDB{
+static promisifyRequest(request) {
     return new Promise((resolve, reject) => {
         // @ts-ignore - file size hacks
         request.oncomplete = request.onsuccess = () => resolve(request.result);
@@ -6,16 +8,16 @@ function promisifyRequest(request) {
         request.onabort = request.onerror = () => reject(request.error);
     });
 }
-function createStore(dbName, storeName) {
+static createStore(dbName, storeName) {
     const request = indexedDB.open(dbName);
     request.onupgradeneeded = () => request.result.createObjectStore(storeName);
-    const dbp = promisifyRequest(request);
+    const dbp = indexDB.promisifyRequest(request);
     return (txMode, callback) => dbp.then((db) => callback(db.transaction(storeName, txMode).objectStore(storeName)));
 }
-let defaultGetStoreFunc;
-function defaultGetStore() {
+
+static defaultGetStore() {
     if (!defaultGetStoreFunc) {
-        defaultGetStoreFunc = createStore('ActionSpaceEditor', 'Store');
+        defaultGetStoreFunc = indexDB.createStore('ActionSpaceEditor', 'Store');
     }
     return defaultGetStoreFunc;
 }
@@ -25,8 +27,8 @@ function defaultGetStore() {
  * @param key
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function get(key, customStore = defaultGetStore()) {
-    return customStore('readonly', (store) => promisifyRequest(store.get(key)));
+static get(key, customStore = indexDB.defaultGetStore()) {
+    return customStore('readonly', (store) => indexDB.promisifyRequest(store.get(key)));
 }
 /**
  * Set a value with a key.
@@ -35,10 +37,10 @@ function get(key, customStore = defaultGetStore()) {
  * @param value
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function set(key, value, customStore = defaultGetStore()) {
+static set(key, value, customStore = indexDB.defaultGetStore()) {
     return customStore('readwrite', (store) => {
         store.put(value, key);
-        return promisifyRequest(store.transaction);
+        return indexDB.promisifyRequest(store.transaction);
     });
 }
 /**
@@ -48,10 +50,10 @@ function set(key, value, customStore = defaultGetStore()) {
  * @param entries Array of entries, where each entry is an array of `[key, value]`.
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function setMany(entries, customStore = defaultGetStore()) {
+ static setMany(entries, customStore = indexDB.defaultGetStore()) {
     return customStore('readwrite', (store) => {
         entries.forEach((entry) => store.put(entry[1], entry[0]));
-        return promisifyRequest(store.transaction);
+        return indexDB.promisifyRequest(store.transaction);
     });
 }
 /**
@@ -60,8 +62,8 @@ function setMany(entries, customStore = defaultGetStore()) {
  * @param keys
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function getMany(keys, customStore = defaultGetStore()) {
-    return customStore('readonly', (store) => Promise.all(keys.map((key) => promisifyRequest(store.get(key)))));
+static getMany(keys, customStore = indexDB.defaultGetStore()) {
+    return customStore('readonly', (store) => Promise.all(keys.map((key) => indexDB.promisifyRequest(store.get(key)))));
 }
 /**
  * Update a value. This lets you see the old value and update it as an atomic operation.
@@ -70,7 +72,7 @@ function getMany(keys, customStore = defaultGetStore()) {
  * @param updater A callback that takes the old value and returns a new value.
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function update(key, updater, customStore = defaultGetStore()) {
+ static update(key, updater, customStore = indexDB.defaultGetStore()) {
     return customStore('readwrite', (store) => 
     // Need to create the promise manually.
     // If I try to chain promises, the transaction closes in browsers
@@ -79,7 +81,7 @@ function update(key, updater, customStore = defaultGetStore()) {
         store.get(key).onsuccess = function () {
             try {
                 store.put(updater(this.result), key);
-                resolve(promisifyRequest(store.transaction));
+                resolve(indexDB.promisifyRequest(store.transaction));
             }
             catch (err) {
                 reject(err);
@@ -93,10 +95,10 @@ function update(key, updater, customStore = defaultGetStore()) {
  * @param key
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function del(key, customStore = defaultGetStore()) {
+ static del(key, customStore = indexDB.defaultGetStore()) {
     return customStore('readwrite', (store) => {
         store.delete(key);
-        return promisifyRequest(store.transaction);
+        return indexDB.promisifyRequest(store.transaction);
     });
 }
 /**
@@ -104,13 +106,13 @@ function del(key, customStore = defaultGetStore()) {
  *
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function clear(customStore = defaultGetStore()) {
+ static clear(customStore = indexDB.defaultGetStore()) {
     return customStore('readwrite', (store) => {
         store.clear();
-        return promisifyRequest(store.transaction);
+        return indexDB.promisifyRequest(store.transaction);
     });
 }
-function eachCursor(customStore, callback) {
+static eachCursor(customStore, callback) {
     return customStore('readonly', (store) => {
         // This would be store.getAllKeys(), but it isn't supported by Edge or Safari.
         // And openKeyCursor isn't supported by Safari.
@@ -120,7 +122,7 @@ function eachCursor(customStore, callback) {
             callback(this.result);
             this.result.continue();
         };
-        return promisifyRequest(store.transaction);
+        return indexDB.promisifyRequest(store.transaction);
     });
 }
 /**
@@ -128,25 +130,27 @@ function eachCursor(customStore, callback) {
  *
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function keys(customStore = defaultGetStore()) {
+ static keys(customStore = indexDB.defaultGetStore()) {
     const items = [];
-    return eachCursor(customStore, (cursor) => items.push(cursor.key)).then(() => items);
+    return indexDB.eachCursor(customStore, (cursor) => items.push(cursor.key)).then(() => items);
 }
 /**
  * Get all values in the store.
  *
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function values(customStore = defaultGetStore()) {
+ static values(customStore = indexDB.defaultGetStore()) {
     const items = [];
-    return eachCursor(customStore, (cursor) => items.push(cursor.value)).then(() => items);
+    return indexDB.eachCursor(customStore, (cursor) => items.push(cursor.value)).then(() => items);
 }
 /**
  * Get all entries in the store. Each entry is an array of `[key, value]`.
  *
  * @param customStore Method to get a custom store. Use with caution (see the docs).
  */
-function entries(customStore = defaultGetStore()) {
+ static entries(customStore = indexDB.defaultGetStore()) {
     const items = [];
-    return eachCursor(customStore, (cursor) => items.push([cursor.key, cursor.value])).then(() => items);
+    return indexDB.eachCursor(customStore, (cursor) => items.push([cursor.key, cursor.value])).then(() => items);
+}
+
 }
