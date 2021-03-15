@@ -61,14 +61,17 @@ class processFS{
             fileHandle = handle;
         }
         console.log(fileHandle);
-        const file = await fileHandle.getFile();
+        var file = await fileHandle.getFile();var contents;
         if(file['name'].includes('.json') || file['name'].includes('.txt')|| file['name'].includes('.html')|| file['name'].includes('.js')||file['name'].includes('.pdf')){
-            const contents = await file.text();
+            contents = await file.text();
             document.getElementById('textBox').innerText = contents;
         }else if(file['name'].includes('.xml') || file['name'].includes('.xlsx')|| file['name'].includes('.csv')){
-            console.log("Work In Progress")
-        }else if(file['type'].includes('image')){
-            console.log("Image :- Work In Progress");
+            console.log("Work In Progress");
+        }else if(file['type'].includes('image') ||file['name'].includes('.JPG') ||file['name'].includes('.JPEG') ||file['name'].includes('.PNG')){
+           contents = await file.slice();console.log(contents);
+           var image = document.createElement('image');
+           image.setAttribute('src', URL.createObjectURL(contents));console.log(image);
+           document.getElementById('textBox').append(image);
         }else{
             console.log("Not supported");
         }
@@ -83,26 +86,28 @@ class processFS{
         var li = document.createElement('li');
         var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = dirHandle.name;li.append(span);
         var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);ul.setAttribute('id',dirID);
-        workspace.append(li);
+        workspace.appendChild(li);
         await processFS.getContent(dirHandle ,ul);
         console.log(workspace);
-        var carets = document.getElementsByClassName('caret');console.log("Kitne carets he " + carets.length);
-        for (var i = 0; i < carets.length; i++) {
-            carets[i].addEventListener('click', function() {
-                console.log("Clicked");
+        var carets = document.querySelectorAll('.caret');console.log("Kitne carets he " + carets.length);
+        carets.forEach(caret =>{
+            caret.onclick = async function(event) {
+                event.preventDefault();
+                console.log(event.target.innerHTML);
                 this.classList.toggle('caret-down')
                 parent = this.parentElement;
                 parent.querySelector('.nested').classList.toggle('active')
-            })
-        }
-        var files = document.getElementsByClassName('file');
-        for(var i = 0 ; i < files.length; i++){
-            files[i].addEventListener('click',async function(event){
+            }
+        })
+        var files = document.querySelectorAll('.file');
+        files.forEach(file =>{
+            file.addEventListener('click',async function(event){
+                event.stopPropagation();
                 console.log(event.target.getAttribute("id"));
                 var handleDirFile = await get(event.target.getAttribute('id'));
                 processFS.Open(event,handleDirFile);
             });
-          }
+        })
     }
     static async getContent(handle,parent){
         var parentHandle = await get(parent.getAttribute('id'));//get parent Handle from indexDB
