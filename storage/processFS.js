@@ -86,15 +86,12 @@ class processFS{
         const dirHandle = await window.showDirectoryPicker();
         var dirID = processFS.uid();
         await indexDB.set(dirID, dirHandle);
-        //set innerHTML
-        var workspace = document.getElementById('workspace');
-        var li = document.createElement('li');
-        var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = dirHandle.name;li.append(span);
-        var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);ul.setAttribute('id',dirID);
-        workspace.appendChild(li);
-        await processFS.getContent(dirHandle ,ul);
-        console.log(workspace);
-        var carets = document.querySelectorAll('.caret');console.log("Kitne carets he " + carets.length);
+        var input = directoryJSON;
+        input['span']['innerText'] = dirHandle.name;input['list']['id'] = dirID;
+        var json = await processFS.jsonForDirectory(input['list'] ,dirID);
+        console.log(input);
+        var data = new Entity(input,document.getElementsByTagName('workspace'));
+        var carets = document.querySelectorAll('.caret');
         carets.forEach(caret =>{
             caret.onclick = async function(event) {
                 event.preventDefault();
@@ -133,6 +130,29 @@ class processFS{
                 parent.append(liFile);
             }
         }
+    }
+    static async jsonForDirectory(obj,parentID){
+        var parentHandle =await indexDB.get(parentID);
+        for await(var entry of parentHandle.values()){
+            var id = processFS.uid();
+            if(entry.kind == 'directory'){
+                var directory = directoryJSON;
+                directory['span']['innerText'] = entry.name;directory['list']['id'] = id;
+                var directoryHandle = await parentHandle.getDirectoryHandle(entry.name);
+                await indexDB.set(id,directoryHandle);
+                console.log(directory);
+                obj[entry.name] = directory;
+                await processFS.jsonForDirectory(obj[entry.name]['list'], id);
+            }else if(entry.kind == 'file' && entry.name.includes('.')){
+                var fileData = fileJSON;
+                fileData['id'] = id;fileData['innerText'] = entry.name;
+                console.log(fileData);
+                var fileHandle = await parentHandle.getFileHandle(entry.name);
+                await indexDB.set(id,fileHandle);
+                obj[entry.name] = fileData;
+            }
+        }
+        return obj;
     }
     static uid() {
         let timmy = Date.now().toString(36).toLocaleUpperCase();

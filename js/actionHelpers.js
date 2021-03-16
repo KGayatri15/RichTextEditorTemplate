@@ -53,21 +53,22 @@ class Entity {
     }
     static append(input, output, key, value, callback, callbackClass) {
         // console.log('appending', input,output)
-
+        var response;
+     //   console.log(output + ":::" + input);
         if (operate.is(output).includes("HTML")) { //Only HTML creation
-            var response = output.appendChild(input);
+            response = output.appendChild(input);
         }
         if (operate.is(output).includes("Object")) { //Only HTML creation
             // console.log("append request for ",input,output)     
             output[key] = input;
-            var response = output;
+            response = output;
             //var response = document.createElement(key);
 
         }
         if (operate.is(output).includes("Array")) { //Only HTML creation
             // console.log("append request for ",input,output)     
             output.push(input);
-            var response = output;
+            response = output;
             //var response = document.createElement(key);
 
         }
@@ -83,7 +84,6 @@ class Entity {
            
             if (operate.isInsideArray(key, htmlAttributesListV2)) {
                 
-                console.log(output);
                 output.setAttribute(key, value);
                 if (key == "innerText") {
                     console.log("setting", key, value, "in", output)
