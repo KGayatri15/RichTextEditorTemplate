@@ -9,7 +9,7 @@ var sidebar = {
             'frontEnd':{
                 'name':'ul',
                 'id':'frontEnd',
-                'children':[{
+                'workspace':{
                         'name':'li',
                         'span':{
                             'name':'span',
@@ -20,31 +20,46 @@ var sidebar = {
                             'name':'ul',
                             'class':'nested',
                             'id':'workspace',
-                            'children':[
-
-                            ]
                         }
-                }]
+                }
             }
         }
   //  }
 };
+var example = {
+    'name':'li',
+    'children':{
+        'span':{
+            'name':'span',
+            'class':'caret',
+            'innerText':'', //inner Text will be included
+        },
+        'list':{
+            'name':'ul',
+            'class':'nested',
+            'id':'' //id - Unique ID with which directory handle of this folder can ke retrieved from indexDB
+        }
+    }
+}
 var directoryJSON = {
+    'li':{
     'name':'li',
     'span':{
         'name':'span',
         'class':'caret',
-        //inner Text will be included
+        'innerText':'', //inner Text will be included
     },
     'list':{
         'name':'ul',
         'class':'nested',
-        //id - Unique ID with which directory handle of this folder can ke retrieved from indexDB
+        'id':'' //id - Unique ID with which directory handle of this folder can ke retrieved from indexDB
+    }
     }
 }
 var fileJSON = {
-    'name':'list',
-     //id - Unique ID with which file handle of this file retrieved from indexDB
+    'name':'li',
+    'id':'', //id - Unique ID with which file handle of this file retrieved from indexDB
      'class':'file',//used for opening file
+     'innerText':''
      //innerText - name of the file
 }

@@ -62,20 +62,20 @@
 <script> 
 window.addEventListener('load',(event)=>{
 event.preventDefault();
-console.log(sidebar['menu']['frontEnd']['children'][0]['list']);
+console.log(sidebar['menu']['frontEnd']['workspace']['list']);
 var sidebarEntity = new Entity(sidebar , document.getElementById('sidebar'));
-setInterval(async(event)=>{
-  if(localStorage.getItem('ActiveFile') !== document.getElementById('textBox').innerHTML){
-    await localStorage.setItem('ActiveFile',document.getElementById('textBox').innerHTML);
-    console.log('Updated Active File');
-  }
-},9000);
-var data = localStorage.getItem('ActiveFile'); console.log("ActiveFile :- " + data);
-if(data)
-  document.getElementById('textBox').innerHTML = data;
-shortcut.add('Ctrl+S',processFS.saveFile);
-shortcut.add('F12',processFS.saveAsFile);
-shortcut.add('Ctrl+O',processFS.Open);
+// setInterval(async(event)=>{
+//   if(localStorage.getItem('ActiveFile') !== document.getElementById('textBox').innerHTML){
+//     await localStorage.setItem('ActiveFile',document.getElementById('textBox').innerHTML);
+//     console.log('Updated Active File');
+//   }
+// },9000);
+// var data = localStorage.getItem('ActiveFile'); console.log("ActiveFile :- " + data);
+// if(data)
+//   document.getElementById('textBox').innerHTML = data;
+Shortcut.add('Ctrl+S',processFS.saveFile);
+Shortcut.add('F12',processFS.saveAsFile);
+Shortcut.add('Ctrl+O',processFS.Open);
   const model = new Model();
   view = new View(model,{
     'text':document.getElementById("textBox"),

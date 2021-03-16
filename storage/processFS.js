@@ -1,11 +1,11 @@
-let fileHandle;
+var fileHandle;
 const pickerOpts = {
     types: [
       {
         description: '.txt,.html,.js,.json,.csv,.xml,.xlsx,.jpg,jpeg,.png',
         accept: {
           'text/*':['.txt','.html','.json','.js'],
-          'iamge/*':['jpg','jpeg','png']
+          'image/*':['.jpg','.jpeg','.png']
         }
       },
     ],
@@ -46,18 +46,16 @@ class processFS{
         event.preventDefault();
         if(fileHandle){
             if(confirm('Want to erase all the changes made it to the file')){
-                await this.Open(event);
+                await processFS.Open(event);
             }
         }else{
-            await this.Open(event);
+            await processFS.Open(event);
         }
     }
     static async Open(event,handle){
         event.preventDefault();
         if(!handle){
-        [fileHandle] = await window.showOpenFilePicker(pickerOpts);
-        if(!fileHandle)
-            return;
+            [fileHandle] = await window.showOpenFilePicker(pickerOpts);
         }else{
             fileHandle = handle;
         }
@@ -74,7 +72,7 @@ class processFS{
             var image = new Image();
             image.title = file.name;
             image.src = reader.result;
-            document.getElementById('textBox').append(image);
+            document.getElementById('textBox').innerHTML = image;
           }, false);
             reader.readAsDataURL(file);
         }else{
@@ -86,11 +84,11 @@ class processFS{
         const dirHandle = await window.showDirectoryPicker();
         var dirID = processFS.uid();
         await indexDB.set(dirID, dirHandle);
-        var input = directoryJSON;
-        input['span']['innerText'] = dirHandle.name;input['list']['id'] = dirID;
-        var json = await processFS.jsonForDirectory(input['list'] ,dirID);
+        var input = JSON.parse(JSON.stringify(directoryJSON));
+        input['li']['span']['innerText'] = dirHandle.name;input['li']['list']['id'] = dirID;
+        var json = await processFS.jsonForDirectory(input['li']['list'] ,dirID);
         console.log(input);
-        var data = new Entity(input,document.getElementsByTagName('workspace'));
+        var data = new Entity(input, document.getElementById('workspace'));
         var carets = document.querySelectorAll('.caret');
         carets.forEach(caret =>{
             caret.onclick = async function(event) {
@@ -111,45 +109,27 @@ class processFS{
             });
         })
     }
-    static async getContent(handle,parent){
-        var parentHandle = await indexDB.get(parent.getAttribute('id'));//get parent Handle from indexDB
-        for await (const entry of handle.values()){
-            var ID = processFS.uid(); //new id for directory/file
-            if(entry.kind == 'directory'){
-                console.log("Name of Directory :- " + entry.name);
-                var li = document.createElement('li');parent.append(li);
-                var getDirHandle = await parentHandle.getDirectoryHandle(entry.name);//get current directory handle
-                await indexDB.set(ID,getDirHandle);//set Unique ID to this directory handle
-                var span = document.createElement('span');span.setAttribute('class','caret');span.innerText = entry.name;li.append(span);
-                var ul = document.createElement('ul');ul.setAttribute('class','nested');li.append(ul);ul.setAttribute('id',ID);
-                await processFS.getContent(entry ,ul);
-            }else if(entry.kind == 'file' && entry.name.includes('.')){
-                var getfileHandle = await parentHandle.getFileHandle(entry.name);//get current file handle
-                await indexDB.set(ID,getfileHandle);//set Unique ID to this directory handle
-                var liFile = document.createElement('li');liFile.innerText = entry.name;liFile.setAttribute('id',ID);liFile.setAttribute('class','file');
-                parent.append(liFile);
-            }
-        }
-    }
     static async jsonForDirectory(obj,parentID){
         var parentHandle =await indexDB.get(parentID);
+        console.log(parentHandle);
         for await(var entry of parentHandle.values()){
             var id = processFS.uid();
             if(entry.kind == 'directory'){
-                var directory = directoryJSON;
-                directory['span']['innerText'] = entry.name;directory['list']['id'] = id;
+                var directory = JSON.parse(JSON.stringify(directoryJSON));
+                directory['li']['span']['innerText'] = entry.name;directory['li']['list']['id'] = id;
                 var directoryHandle = await parentHandle.getDirectoryHandle(entry.name);
                 await indexDB.set(id,directoryHandle);
                 console.log(directory);
                 obj[entry.name] = directory;
-                await processFS.jsonForDirectory(obj[entry.name]['list'], id);
+                console.log(obj[entry.name]['li']['list']);
+                await processFS.jsonForDirectory(obj[entry.name]['li']['list'], id);
             }else if(entry.kind == 'file' && entry.name.includes('.')){
-                var fileData = fileJSON;
+                var fileData = JSON.parse(JSON.stringify(fileJSON));
                 fileData['id'] = id;fileData['innerText'] = entry.name;
-                console.log(fileData);
-                var fileHandle = await parentHandle.getFileHandle(entry.name);
-                await indexDB.set(id,fileHandle);
+                var getfileHandle = await parentHandle.getFileHandle(entry.name);
+                await indexDB.set(id,getfileHandle);
                 obj[entry.name] = fileData;
+                console.log(obj);
             }
         }
         return obj;

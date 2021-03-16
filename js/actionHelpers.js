@@ -72,9 +72,6 @@ class Entity {
             //var response = document.createElement(key);
 
         }
-
-
-
         // console.log('appended',response)
         return response;
     }
