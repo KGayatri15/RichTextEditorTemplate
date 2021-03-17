@@ -82,6 +82,7 @@ class processFS{
     static async OpenDirectory(event){
         event.preventDefault();
         const dirHandle = await window.showDirectoryPicker();
+        Loader.preLoader();
         var dirID = processFS.uid();
         await indexDB.set(dirID, dirHandle);
         var input = JSON.parse(JSON.stringify(directoryJSON));
@@ -89,6 +90,7 @@ class processFS{
         var json = await processFS.jsonForDirectory(input['li']['list'] ,dirID);
         console.log(input);
         var data = new Entity(input, document.getElementById('workspace'));
+        Loader.Show();
         var carets = document.querySelectorAll('.caret');
         carets.forEach(caret =>{
             caret.onclick = async function(event) {
@@ -140,4 +142,15 @@ class processFS{
         randy = randy.toString(36).slice(0, 12).padStart(12, '0').toLocaleUpperCase();
         return ''.concat(timmy, '-', randy);
     }    
+}
+class Loader{
+    static preLoader(){
+        document.querySelector('.loader').style.visibility = "visible";
+        document.querySelector('.grid-container').style.visibility = "hidden";
+    
+    }
+    static Show(){
+    document.querySelector('.loader').style.visibility = "hidden";
+    document.querySelector('.grid-container').style.visibility = "visible";
+    }
 }
