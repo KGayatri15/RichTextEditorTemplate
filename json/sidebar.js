@@ -26,21 +26,6 @@ var sidebar = {
         }
   //  }
 };
-var example = {
-    'name':'li',
-    'children':{
-        'span':{
-            'name':'span',
-            'class':'caret',
-            'innerText':'', //inner Text will be included
-        },
-        'list':{
-            'name':'ul',
-            'class':'nested',
-            'id':'' //id - Unique ID with which directory handle of this folder can ke retrieved from indexDB
-        }
-    }
-}
 var directoryJSON = {
     'li':{
     'name':'li',
